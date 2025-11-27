@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "jungleApp",
   "private": true,
   "scripts": {
     "build": "turbo run build",
