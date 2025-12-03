@@ -1,0 +1,14 @@
+{
+  "name": "@app/types",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "typescript": "^4.5.4",
+    "tsconfig-paths": "^4.2.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "TS_NODE_BASEURL=./src ts-node -r tsconfig-paths/register src/index.js"
+  }
+}
