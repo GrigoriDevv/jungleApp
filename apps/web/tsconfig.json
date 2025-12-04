@@ -1,28 +1,57 @@
 {
-  "include": ["**/*.ts", "**/*.tsx"],
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Web App - React + TanStack Router + shadcn",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2022",
-    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "ES2023"],
     "module": "ESNext",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"],
-
-    /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
-
-    /* Linting */
+    "jsx": "react-jsx",
+    "allowJs": false,
+    "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-    "baseUrl": "../apps",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false,
+    "baseUrl": ".",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "paths": {
-      "@apps/*": ["./apps/*"]
-    }
-  }
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@stores/*": ["./src/stores/*"],
+      "@routes/*": ["./src/routes/*"],
+      "@shared/*": ["../../packages/types/*"]
+    },
+    "plugins": [
+      {
+        "name": "@tanstack/router-plugin",
+        "enabled": true
+      }
+    ],
+    "types": ["node", ]
+  },
+  "include": [
+    "src/**/*",
+    "src/**/*.json",
+    ".env.d.ts",
+
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
 }
