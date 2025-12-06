@@ -10,11 +10,12 @@ const commentSchema = z.object({
 
 type CommentData = z.infer<typeof commentSchema>;
 type Comment = CommentData & { id: string; createdAt: string; user: string };
+type CommentsResponse = { data: Comment[] };
 
 export const useComments = (taskId: string, page: number = 1, size: number = 10) => {
   return useQuery<Comment[]>({
     queryKey: ['comments', taskId, page, size],
-    queryFn: () => api.get(`/tasks/${taskId}/comments?page=${page}&size=${size}`).then((res) => res.data),
+    queryFn: () => api.get(`/tasks/${taskId}/comments?page=${page}&size=${size}`).then((res: CommentsResponse) => res.data),
   });
 };
 

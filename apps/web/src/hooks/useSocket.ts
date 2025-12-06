@@ -10,7 +10,7 @@ export const useSocket = () => {
   useEffect(() => {
     if (socket) return;
 
-    socket = io(import.meta.env.VITE_WS_URL || 'http://localhost:3004', {
+    socket = io((import.meta as any).env.VITE_WS_URL || 'http://localhost:3004', {
       transports: ['websocket'],
       autoConnect: true,
       reconnection: true,

@@ -41,7 +41,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     setToasts((currentToasts) => currentToasts.filter((item) => item.id !== id))
   }, [])
 
-  return 
+  return (
+    <ToastContext.Provider value={{ toast, dismiss, toasts }}>
+      {children}
+    </ToastContext.Provider>
+  )
 }
 
 export function useToast() {

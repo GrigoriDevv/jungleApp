@@ -19,7 +19,14 @@ const loginSchema = z.object({
 });
 
 type RegisterData = z.infer<typeof registerSchema>;
-type LoginData = z.infer<typeof loginSchema>;
+export type LoginData = z.infer<typeof loginSchema>;
+
+type LoginResponse = {
+  data: {
+    accessToken: string;
+    refreshToken: string;
+  };
+};
 
 export const useRegister = () => {
   const navigate = useNavigate();
@@ -32,7 +39,7 @@ export const useRegister = () => {
 export const useLogin = () => {
   const { setTokens } = useAuthStore();
   const navigate = useNavigate();
-  return useMutation({
+  return useMutation<LoginResponse, unknown, LoginData>({
     mutationFn: (data: LoginData) => api.post('/auth/login', data),
     onSuccess: (res) => {
       setTokens(res.data.accessToken, res.data.refreshToken);

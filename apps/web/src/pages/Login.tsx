@@ -1,9 +1,10 @@
 import { useLogin, useLoginForm } from '../hooks/useAuth';
+import type { LoginData } from '../hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/components/ui/sonner';
+import { useToast } from '@/components/ui/use-toast';
 import { Link } from '@tanstack/react-router';
 
 export const Login = () => {
@@ -11,7 +12,7 @@ export const Login = () => {
   const { mutate, isPending } = useLogin();
   const { toast } = useToast();
 
-  const onSubmit = (data) => mutate(data, { onError: () => toast({ title: 'Login failed', variant: 'destructive' }) });
+  const onSubmit = (data: LoginData) => mutate(data, { onError: () => toast({ title: 'Login failed', variant: 'destructive' }) });
 
   if (isPending) return <Skeleton className="h-96 w-full" />;
 

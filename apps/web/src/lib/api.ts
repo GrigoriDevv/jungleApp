@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { useAuthStore } from '../stores/authStore.ts';
-import { useToast } from '@/components/ui/sonner';
+import { useAuthStore } from '../stores/authStore';
+import { useToast } from '@/components/ui/use-toast';
 
 const api = axios.create({
   baseURL: '/api', // Assuming gateway is proxied or same origin
@@ -27,7 +27,8 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         useAuthStore.getState().logout();
-        useToast({ title: 'Session expired', description: 'Please login again.', variant: 'destructive' });
+        const { toast } = useToast();
+        toast({ title: 'Session expired', description: 'Please login again.', variant: 'destructive' });
         return Promise.reject(refreshError);
       }
     }

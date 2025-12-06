@@ -15,18 +15,20 @@ const taskSchema = z.object({
 
 type TaskData = z.infer<typeof taskSchema>;
 type Task = TaskData & { id: string };
+type TaskResponse = { data: Task };
+type TasksResponse = { data: Task[] };
 
 export const useTasks = (page: number = 1, size: number = 10) => {
   return useQuery<Task[]>({
     queryKey: ['tasks', page, size],
-    queryFn: () => api.get(`/tasks?page=${page}&size=${size}`).then((res) => res.data),
+    queryFn: () => api.get(`/tasks?page=${page}&size=${size}`).then((res: TasksResponse) => res.data),
   });
 };
 
 export const useTask = (id: string) => {
   return useQuery<Task>({
     queryKey: ['task', id],
-    queryFn: () => api.get(`/tasks/${id}`).then((res) => res.data),
+    queryFn: () => api.get(`/tasks/${id}`).then((res: TaskResponse) => res.data),
   });
 };
 
