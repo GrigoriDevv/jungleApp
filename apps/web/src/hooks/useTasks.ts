@@ -1,5 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export const useTasks = () => {
   return useQuery({
@@ -53,3 +56,17 @@ export const useDeleteTask = () => {
     },
   });
 };
+
+const taskSchema = z.object({
+  title: z.string().min(1),
+  description: z.string(),
+  dueDate: z.string().optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE']),
+  assignees: z.array(z.string()).optional(),
+});
+
+type TaskData = z.infer<typeof taskSchema>;
+
+export const useTaskForm = (defaultValues?: Partial<TaskData>) =>
+  useForm<TaskData>({ resolver: zodResolver(taskSchema), defaultValues });

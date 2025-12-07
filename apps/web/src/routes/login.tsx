@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useLogin, useLoginForm } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FormLabel } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,12 +33,12 @@ function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <FormLabel htmlFor="email">Email</FormLabel>
+              <Label htmlFor="email">Email</Label>
               <Input id="email" placeholder="seu@email.com" {...register('email')} />
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
             </div>
             <div>
-              <FormLabel htmlFor="password">Senha</FormLabel>
+              <Label htmlFor="password">Senha</Label>
               <Input id="password" type="password" {...register('password')} />
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
             </div>

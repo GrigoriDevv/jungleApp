@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthTasksRouteImport } from './routes/_auth.tasks'
+import { Route as AuthTasksCreateRouteImport } from './routes/_auth.tasks.create'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -39,18 +40,25 @@ const AuthTasksRoute = AuthTasksRouteImport.update({
   path: '/tasks',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthTasksCreateRoute = AuthTasksCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => AuthTasksRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/tasks': typeof AuthTasksRoute
+  '/tasks': typeof AuthTasksRouteWithChildren
+  '/tasks/create': typeof AuthTasksCreateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/tasks': typeof AuthTasksRoute
+  '/tasks': typeof AuthTasksRouteWithChildren
+  '/tasks/create': typeof AuthTasksCreateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -58,14 +66,22 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
-  '/_auth/tasks': typeof AuthTasksRoute
+  '/_auth/tasks': typeof AuthTasksRouteWithChildren
+  '/_auth/tasks/create': typeof AuthTasksCreateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/tasks'
+  fullPaths: '/' | '/login' | '/register' | '/tasks' | '/tasks/create'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/tasks'
-  id: '__root__' | '/' | '/_auth' | '/login' | '/register' | '/_auth/tasks'
+  to: '/' | '/login' | '/register' | '/tasks' | '/tasks/create'
+  id:
+    | '__root__'
+    | '/'
+    | '/_auth'
+    | '/login'
+    | '/register'
+    | '/_auth/tasks'
+    | '/_auth/tasks/create'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -112,15 +128,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthTasksRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/tasks/create': {
+      id: '/_auth/tasks/create'
+      path: '/create'
+      fullPath: '/tasks/create'
+      preLoaderRoute: typeof AuthTasksCreateRouteImport
+      parentRoute: typeof AuthTasksRoute
+    }
   }
 }
 
+interface AuthTasksRouteChildren {
+  AuthTasksCreateRoute: typeof AuthTasksCreateRoute
+}
+
+const AuthTasksRouteChildren: AuthTasksRouteChildren = {
+  AuthTasksCreateRoute: AuthTasksCreateRoute,
+}
+
+const AuthTasksRouteWithChildren = AuthTasksRoute._addFileChildren(
+  AuthTasksRouteChildren,
+)
+
 interface AuthRouteChildren {
-  AuthTasksRoute: typeof AuthTasksRoute
+  AuthTasksRoute: typeof AuthTasksRouteWithChildren
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
-  AuthTasksRoute: AuthTasksRoute,
+  AuthTasksRoute: AuthTasksRouteWithChildren,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
