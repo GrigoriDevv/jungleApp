@@ -13,7 +13,6 @@ export const Login = () => {
   const { toast } = useToast();
 
   const onSubmit = (data: LoginData) => mutate(data, { onError: () => toast({ title: 'Login failed', variant: 'destructive' }) });
-
   if (isPending) return <Skeleton className="h-96 w-full" />;
 
   return (
