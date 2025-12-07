@@ -1,0 +1,9 @@
+web:
+  build:
+    context: .
+    dockerfile: apps/web/Dockerfile
+    target: development   # ← dev (hot-reload)
+    # target: production  # ← descomente para prod
+  ports:
+    - '3000:3000'   # dev
+    # - '80:80'     # prod

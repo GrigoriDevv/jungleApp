@@ -1,16 +1,185 @@
+version: '3.8'
 
-{
-  "$schema": "https://turborepo.org/schema.json",
-  "pipeline": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "lint": {},
-    "type-check": {}
-  }
-}
+services:
+  # Frontend React/Vite Application
+  web:
+    container_name: web
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: development
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - VITE_API_GATEWAY_URL=http://localhost:3001
+      - VITE_WS_URL=ws://localhost:3001
+    volumes:
+      - ./apps/web:/app/apps/web
+      - /app/apps/web/node_modules
+    networks:
+      - challenge-network
+    command: pnpm dev --host 0.0.0.0
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+
+  # API Gateway (Hybrid HTTP + WebSocket)
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+      target: development
+    ports:
+      - '3001:3001'
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - RMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - JWT_SECRET=super-secret-jwt-key-2025
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - challenge-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
+  # Auth Service (microservice RMQ)
+  auth-service:
+    container_name: auth-service
+    build:
+      context: .
+      dockerfile: apps/auth-service/Dockerfile
+      target: development
+    environment:
+      - NODE_ENV=development
+      - RMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+      - DB_DATABASE=challenge_db
+      - JWT_SECRET=super-secret-jwt-key-2025
+      - JWT_REFRESH_SECRET=super-secret-refresh-key-2025
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - challenge-network
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  # Tasks Service
+  tasks-service:
+    container_name: tasks-service
+    build:
+      context: .
+      dockerfile: apps/tasks-service/Dockerfile
+      target: development
+    environment:
+      - NODE_ENV=development
+      - RMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+      - DB_DATABASE=challenge_db
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - challenge-network
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  # Notifications Service
+  notifications-service:
+    container_name: notifications-service
+    build:
+      context: .
+      dockerfile: apps/notifications-service/Dockerfile
+      target: development
+    environment:
+      - NODE_ENV=development
+      - RMQ_URL=amqp://admin:admin@rabbitmq:5672
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password
+      - DB_DATABASE=challenge_db
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - challenge-network
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  # PostgreSQL Database
+  db:
+    image: postgres:17-alpine
+    container_name: postgres-db
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: challenge_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - challenge-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - challenge-network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+
+networks:
+  challenge-network:
+    driver: bridge
