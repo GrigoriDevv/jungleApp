@@ -16,21 +16,21 @@ export const Register = () => {
   if (isPending) return <Skeleton className="h-96 w-full" />;
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-80">
+    <div className="flex b items-center justify-center h-screen">
+      <form onSubmit={handleSubmit(onSubmit)} className=" bg-foreground space-y-4 w-80">
         <div>
           <Label htmlFor="email">Email</Label>
-          <Input id="email" {...register('email')} />
+          <Input id="email" placeholder='Email' {...register('email')} />
           {errors.email && <p className="text-red-500">{errors.email.message}</p>}
         </div>
         <div>
           <Label htmlFor="username">Username</Label>
-          <Input id="username" {...register('username')} />
+          <Input id="username" placeholder='username'{...register('username')} />
           {errors.username && <p className="text-red-500">{errors.username.message}</p>}
         </div>
         <div>
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" {...register('password')} />
+          <Input id="password" type="password" placeholder='Senha' {...register('password')} />
           {errors.password && <p className="text-red-500">{errors.password.message}</p>}
         </div>
         <Button type="submit">Register</Button>

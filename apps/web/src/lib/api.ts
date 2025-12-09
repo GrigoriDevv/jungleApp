@@ -6,25 +6,29 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-// Interceptor de request — token automático
+/// Interceptor de request: adiciona Bearer token
 api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const { accessToken } = useAuthStore.getState()
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`
   }
-  return config;
-});
+  return config
+})
 
-// Interceptor de resposta — logout em 401
+// Interceptor de response: refresh token automático em 401
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      useAuthStore.getState().logout();
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  },
-);
+  async (error) => {
+    const originalRequest = error.config
 
-export default api;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true
+      await useAuthStore.getState().refresh()
+      return api(originalRequest)
+    }
+
+    return Promise.reject(error)
+  },
+)
+
+export default api 
